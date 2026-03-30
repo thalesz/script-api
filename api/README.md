@@ -77,7 +77,7 @@ curl http://localhost:8000/
 ### 2) Consulta por código INCRA
 
 ```bash
-curl http://localhost:8000/imovel/SE000000000000
+curl http://localhost:8000/imovel/01001000000
 ```
 
 ## Testes automatizados (contrato e edge cases)
@@ -111,7 +111,7 @@ python -m pytest -q
 
 ```json
 {
-  "codigo_incra": "SE000000000000",
+  "codigo_incra": "01001000000",
   "area_ha": 100.0,
   "situacao": "Ativo",
   "proprietarios": [

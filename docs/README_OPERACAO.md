@@ -23,7 +23,7 @@ docker exec desafio_postgres psql -U postgres -d sncr -c "SELECT uf, COUNT(*) AS
 Endpoint da API:
 
 ```powershell
-curl http://localhost:8000/imovel/SE000000000000
+curl http://localhost:8000/imovel/01001000000
 ```
 
 ## Problemas comuns

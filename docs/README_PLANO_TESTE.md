@@ -46,7 +46,7 @@ Sinais esperados nos logs:
 5. Testar endpoint principal:
 
 - GET /imovel/{codigo_incra}
-- Exemplo de codigo para teste: `SE000000000000`
+- Exemplo de codigo para teste: `01001000000`
 
 ## Validacao minima esperada
 
@@ -70,7 +70,7 @@ Resultado esperado:
 Se quiser validar o requisito de performance por Codigo INCRA, execute:
 
 ```powershell
-docker exec desafio_postgres psql -U postgres -d sncr -c "EXPLAIN (ANALYZE, BUFFERS) SELECT codigo_incra, pct_obtencao, denominacao, proprietario FROM sncr_records WHERE codigo_incra = 'SE000000000000' LIMIT 1;"
+docker exec desafio_postgres psql -U postgres -d sncr -c "EXPLAIN (ANALYZE, BUFFERS) SELECT codigo_incra, pct_obtencao, denominacao, proprietario FROM sncr_records WHERE codigo_incra = '01001000000' LIMIT 1;"
 ```
 
 O que observar na saida:

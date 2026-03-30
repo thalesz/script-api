@@ -84,7 +84,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 - Teste API:
 
 ```powershell
-curl http://localhost:8000/imovel/SE000000000000
+curl http://localhost:8000/imovel/01001000000
 ```
 
 ## Erros comuns (resolucao rapida)
