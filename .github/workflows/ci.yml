@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: sncr
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install root dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install API dependencies
+      run: |
+        pip install -r api/requirements.txt
+    
+    - name: Install script dependencies
+      run: |
+        pip install -r script/requirements.txt
+    
+    - name: Run API tests
+      run: |
+        python -m pytest api/tests -v --tb=short
+      env:
+        PG_HOST: localhost
+        PG_PORT: 5432
+        PG_DATABASE: sncr
+        PG_USER: postgres
+        PG_PASSWORD: postgres
+    
+    - name: Run loader idempotency test
+      run: |
+        python -m pytest script/tests/test_loader_idempotencia.py -v --tb=short
+      env:
+        PG_HOST: localhost
+        PG_PORT: 5432
+        PG_DATABASE: sncr
+        PG_USER: postgres
+        PG_PASSWORD: postgres
+    
+    - name: Upload test results
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          .pytest_cache/
+          script/logs/

@@ -1,0 +1,63 @@
+# -----------------------------
+# Environment and secrets
+# -----------------------------
+.env
+.env.*
+!.env.example
+
+# -----------------------------
+# Python virtual environments
+# -----------------------------
+.venv/
+venv/
+env/
+
+# -----------------------------
+# Python cache/compiled files
+# -----------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -----------------------------
+# Test and coverage artifacts
+# -----------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# -----------------------------
+# Type checker/lint caches
+# -----------------------------
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# -----------------------------
+# Build/distribution artifacts
+# -----------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# -----------------------------
+# Local logs and runtime artifacts
+# -----------------------------
+*.log
+script/logs/
+
+# -----------------------------
+# Project generated data/artifacts
+# -----------------------------
+script/output/
+script/data/checkpoints/
+
+# -----------------------------
+# OS/editor noise
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

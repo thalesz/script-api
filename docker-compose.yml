@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: desafio_postgres
+    environment:
+      - POSTGRES_DB=${DOCKER_POSTGRES_DB:-sncr}
+      - POSTGRES_USER=${DOCKER_POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${DOCKER_POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DOCKER_POSTGRES_USER:-postgres} -d ${DOCKER_POSTGRES_DB:-sncr}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - desafio
+
+  scraper:
+    build: .
+    image: desafio-app:latest
+    container_name: desafio_scraper
+    volumes:
+      - ./script/output:/app/script/output
+      - ./script/logs:/app/script/logs
+      - ./script/data:/app/script/data
+    environment:
+      # run headless in container by default
+      - HEADLESS=${DOCKER_HEADLESS:-true}
+      # Postgres connection
+      - PG_HOST=${DOCKER_PG_HOST:-postgres}
+      - PG_PORT=${DOCKER_PG_PORT:-5432}
+      - PG_DATABASE=${DOCKER_PG_DATABASE:-sncr}
+      - PG_USER=${DOCKER_PG_USER:-postgres}
+      - PG_PASSWORD=${DOCKER_PG_PASSWORD:-postgres}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+    networks:
+      - desafio
+    restart: "no"
+
+  loader:
+    image: desafio-app:latest
+    container_name: desafio_loader
+    depends_on:
+      postgres:
+        condition: service_healthy
+      scraper:
+        condition: service_completed_successfully
+    volumes:
+      - ./script/output:/app/script/output
+      - ./script/logs:/app/script/logs
+      - ./script/data:/app/script/data
+    environment:
+      - PG_HOST=${DOCKER_PG_HOST:-postgres}
+      - PG_PORT=${DOCKER_PG_PORT:-5432}
+      - PG_DATABASE=${DOCKER_PG_DATABASE:-sncr}
+      - PG_USER=${DOCKER_PG_USER:-postgres}
+      - PG_PASSWORD=${DOCKER_PG_PASSWORD:-postgres}
+    entrypoint: ["python", "/app/docker-entrypoint-loader.py"]
+    networks:
+      - desafio
+    restart: "no"
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: desafio-api:latest
+    container_name: desafio_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PG_HOST=${DOCKER_PG_HOST:-postgres}
+      - PG_PORT=${DOCKER_PG_PORT:-5432}
+      - PG_DATABASE=${DOCKER_PG_DATABASE:-sncr}
+      - PG_USER=${DOCKER_PG_USER:-postgres}
+      - PG_PASSWORD=${DOCKER_PG_PASSWORD:-postgres}
+    depends_on:
+      loader:
+        condition: service_completed_successfully
+    networks:
+      - desafio
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  desafio:
+    driver: bridge
