@@ -2,6 +2,20 @@
 
 Documentação principal enxuta. Os guias detalhados foram separados por responsabilidade na pasta docs.
 
+## O que este projeto faz
+
+Este projeto implementa um pipeline completo para dados do SNCR:
+
+1. Faz o scraping e download de CSVs por UF
+2. Carrega os dados no PostgreSQL com estratégia idempotente (insert-only)
+3. Expõe uma API FastAPI para consulta por `codigo_incra`
+4. Aplica anonimização de CPF na resposta da API
+
+Objetivo principal do desafio:
+- Garantir rastreabilidade e qualidade da ingestão
+- Entregar consulta por `codigo_incra` dentro do SLA de 2 segundos
+- Comprovar comportamento com testes automatizados
+
 ## Início Rápido
 
 1. Copie o ambiente:
@@ -47,7 +61,7 @@ docker compose up --build
 
 1. Scraper baixa CSVs por UF
 2. Loader insere no banco apenas registros novos
-3. API consulta os dados por codigo_incra
+3. API consulta os dados por `codigo_incra`
 
 ## Qualidade (testes de API)
 
@@ -77,7 +91,7 @@ python -m pytest script/tests/test_loader_idempotencia.py -q
 
 ## Execução Unificada de Testes
 
-Para validar API + idempotencia do loader em um comando:
+Para validar API + idempotência do loader em um comando:
 
 ```powershell
 python -m pytest api/tests script/tests/test_loader_idempotencia.py -q
@@ -98,4 +112,4 @@ Este script:
 - Executa `EXPLAIN ANALYZE` na query da API
 - Mostra métricas reais de performance
 
-Detalhes: [docs/PERFORMANCE_INDEXES.md](docs/PERFORMANCE_INDEXES.md#como-executar-el-script-de-captura-explain-analyze)
+Detalhes: [docs/PERFORMANCE_INDEXES.md](docs/PERFORMANCE_INDEXES.md#como-executar-o-script-de-captura-explain-analyze)
